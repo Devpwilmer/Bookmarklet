@@ -1,0 +1,1 @@
+javascript:(function(){let keywords = prompt('Ingresa las palabras clave separadas por comas:');if(keywords){let trendsUrl = `https://trends.google.es/trends/explore?date=now 4-H&q=${encodeURIComponent(keywords)}`;window.location.href = trendsUrl;}})();
