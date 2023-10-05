@@ -1,0 +1,1 @@
+javascript:(function() {    var currentUrl = window.location.href;    var urlWithoutHyphens = currentUrl.replace(/-/g, ' ');    alert('URL sin guiones: ' + urlWithoutHyphens);})();
