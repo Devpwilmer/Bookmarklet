@@ -1,0 +1,1 @@
+javascript:(function(){let elementos=document.querySelectorAll('.jh86Nb');let textoSeparadoPorComas=Array.from(elementos).map(elemento=>elemento.textContent.trim()).join(',');alert(textoSeparadoPorComas);})();
