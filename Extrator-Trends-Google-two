@@ -1,0 +1,1 @@
+javascript:(function(){let elementos=document.querySelectorAll('.s49v2');let textoSeparadoPorComas=Array.from(elementos).map(elemento=>elemento.textContent.trim()).join(',');alert(textoSeparadoPorComas);})();
