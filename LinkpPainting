@@ -1,0 +1,1 @@
+javascript:!function(){var e=prompt("Por favor, ingresa el enlace que quieres buscar:","https://www.ejemplo.com");if(e){var r=document.querySelectorAll('a[href="'+e+'"]');r.forEach(function(e){e.style.color="red"}),0===r.length&&alert("No se encontraron enlaces con ese URL.")}}();
