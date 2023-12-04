@@ -1,0 +1,63 @@
+function verificarEstadosRobotsTxt() {
+  // Obtener la hoja de cálculo activa y la columna con los enlaces (URLs)
+  var hojaActiva = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var columnaNumeros = hojaActiva.getRange("B2:B" + hojaActiva.getLastRow()).getValues();
+  
+  // User-agents adicionales
+  var userAgents = [
+    'User-agent: GPTBot',
+    'User-agent: ChatGPT-User',
+    'User-agent: CCBot',
+    'User-agent: anthropic-ai',
+    'User-agent: Google-Extended'
+  ];
+
+  // Iterar sobre las filas
+  for (var i = 0; i < columnaNumeros.length; i++) {
+    var url = columnaNumeros[i][0]; // Obtener la URL de la celda actual
+    
+    try {
+      // Realizar una solicitud HTTP para obtener el contenido de robots.txt
+      var response = UrlFetchApp.fetch(url);
+      var contenidoRobotsTxt = response.getContentText();
+
+      // Verificar si el contenido contiene las reglas para los user-agents específicos
+      var resultados = obtenerResultados(contenidoRobotsTxt, userAgents);
+
+      // Obtener las celdas donde deseas mostrar los resultados
+      var celdaInicio = hojaActiva.getRange('C' + (i + 2));
+      
+      // Mostrar los resultados en las celdas
+      for (var j = 0; j < resultados.length; j++) {
+        if (resultados[j] !== null) {
+          celdaInicio.offset(0, j).setValue(resultados[j] ? 'Bloqueado' : 'Permitido');
+        }
+      }
+    } catch (error) {
+      // Manejar el error y mostrar un mensaje en la consola del script
+      console.error('Error al procesar la URL ' + url + ': ' + error.toString());
+    }
+  }
+}
+
+function obtenerResultados(robotsTxt, userAgents) {
+  var resultados = [];
+  
+  for (var i = 0; i < userAgents.length; i++) {
+    var userAgent = userAgents[i];
+    var regla = 'Disallow: ';
+
+    if (contieneRegla(robotsTxt, userAgent, regla) !== null) {
+      resultados.push(contieneRegla(robotsTxt, userAgent, regla));
+    } else {
+      resultados.push(null);
+    }
+  }
+
+  return resultados;
+}
+
+function contieneRegla(robotsTxt, userAgent, regla) {
+  var regex = new RegExp(userAgent + '\n' + regla, 'i');
+  return regex.test(robotsTxt);
+}
