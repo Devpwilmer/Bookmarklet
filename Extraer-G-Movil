@@ -1,0 +1,90 @@
+import time
+import urllib.parse
+from datetime import datetime
+from plyer import notification
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+
+# Configuración del controlador de Chrome en modo headless
+chrome_options = Options()
+chrome_options.add_argument("--headless")  # Ejecutar en modo headless (sin interfaz gráfica)
+chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--window-size=1920x1080")
+
+# Configurar emulación móvil
+mobile_emulation = {
+    "deviceMetrics": {"width": 360, "height": 640, "pixelRatio": 3.0},
+    "userAgent": ("Mozilla/5.0 (Linux; Android 9; Pixel 3) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/91.0.4472.77 Mobile Safari/537.36")
+}
+chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+
+# Ruta al ChromeDriver
+chromedriver_path = r'C:\Users\user\OneDrive\Escritorio\chromedriver-win64\chromedriver.exe'  # Cambia esto a la ruta de tu ChromeDriver
+
+# Crear el servicio y el controlador
+service = Service(chromedriver_path)
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+# URL de Google Discover (es necesario estar logueado en una cuenta de Google)
+discover_url = 'https://www.google.com/'
+
+# Función para extraer tendencias y generar URLs de Google Trends
+def extraer_tendencias():
+    # Navegar a Google Discover
+    driver.get(discover_url)
+
+    # Esperar para asegurar que la página cargue completamente
+    time.sleep(5)  # Ajusta el tiempo de espera según sea necesario
+
+    # Encontrar elementos con las clases h5AwLb y s49v2
+    h5AwLb_elements = driver.find_elements(By.CLASS_NAME, 'h5AwLb')
+    s49v2_elements = driver.find_elements(By.CLASS_NAME, 's49v2')
+
+    tendencias = []
+
+    print("Elementos con clase 'h5AwLb':")
+    for element in h5AwLb_elements:
+        text = element.text
+        print(text)
+        tendencias.append(text)
+
+    print("\nElementos con clase 's49v2':")
+    for element in s49v2_elements:
+        text = element.text
+        print(text)
+        tendencias.append(text)
+
+    # Generar URLs de Google Trends
+    trends_base_url = 'https://trends.google.es/trends/explore?date=now%201-H&q='
+    trends_urls = [trends_base_url + urllib.parse.quote(tendencia) for tendencia in tendencias]
+
+    # Imprimir las URLs generadas
+    print("\nURLs de Google Trends generadas:")
+    for url in trends_urls:
+        print(url)
+
+    # Notificación de que se completó el scraping
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    notification.notify(
+        title='Scraping Completo',
+        message=f'Se han extraído las tendencias y generado las URLs de Google Trends.\nHora: {current_time}',
+        timeout=10
+    )
+
+# Mantener el navegador abierto para inspección manual
+try:
+    while True:
+        extraer_tendencias()
+        print(f"Scraping ejecutado a las: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("Esperando 1 minuto para la próxima ejecución...\n")
+        time.sleep(300)  # Espera 1 minuto antes de ejecutar nuevamente
+except KeyboardInterrupt:
+    print("Script terminado por el usuario.")
+    driver.quit()  # Asegurarse de cerrar el navegador
+    exit()
+
+# Cerrar el navegador si se sale del bucle
+driver.quit()
