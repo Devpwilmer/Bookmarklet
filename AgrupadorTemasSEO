@@ -1,0 +1,45 @@
+import pandas as pd
+
+# Leer el archivo CSV
+df = pd.read_csv('#')
+
+# Verificar que las columnas existen
+print("Columnas del DataFrame:", df.columns)
+
+# Asegurarse de que las columnas estén correctamente nombradas
+df.columns = [col.strip() for col in df.columns]
+
+# Definir las temáticas y sus palabras clave asociadas
+tematicas = {
+    'Bridgerton': ['bridgerton'],
+    'Jinx': ['jinx'],
+    'Pintor Nocturno': ['pintor nocturno'],
+    'La Casa del Dragón': ['la casa del dragón'],
+    'El Señor de los Cielos': ['el señor de los cielos']
+}
+
+# Crear un DataFrame para almacenar los resultados
+resultados = pd.DataFrame(columns=['Tematica', 'Total Clicks'])
+
+# Función para sumar los clics según la temática
+def sumar_clics_por_tematica(df, tematicas):
+    resultados = []
+    for tematica, keywords in tematicas.items():
+        total_clicks = 0
+        for keyword in keywords:
+            # Verificar cuáles filas están siendo sumadas
+            matching_rows = df[df['Keyword'].str.contains(keyword, case=False, na=False)]
+            print(f"Filas coincidentes para '{keyword}':")
+            print(matching_rows)
+            
+            clics = matching_rows['Clicks'].sum()
+            print(f"Temática: {tematica}, Palabra clave: {keyword}, Clics sumados: {clics}")
+            total_clicks += clics
+        resultados.append({'Tematica': tematica, 'Total Clicks': total_clicks})
+    return pd.DataFrame(resultados)
+
+# Aplicar la función y obtener los resultados
+resultados = sumar_clics_por_tematica(df, tematicas)
+
+# Mostrar los resultados
+print(resultados)
